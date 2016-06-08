@@ -8,12 +8,12 @@ from random import randint
 
 class Gusano:
 
- sense = 0
- gusano= -1 
+ sense   = 0
+ gusano  = -1 
  running = True
- white = (0,0,0)
- red   = (255,0,0)
- comida= Point(-1,-1)
+ white   = (0,0,0)
+ red     = (255,0,0)
+ comida  = Point(-1,-1)
 
  def __init__(self):
   self.sense = SenseHat()
@@ -34,6 +34,11 @@ class Gusano:
   self.paintGusano()
   while self.running:
     for event in pygame.event.get():
+        #Genera comida
+        if self.comidaDisponible() == False:
+          self.comida = self.generaComida()
+        self.paintComida()
+
         if event.type == KEYDOWN:
             #sense.set_pixel(x, y, 0, 0, 0)  # Black 0,0,0 means OFF
             update = False
@@ -57,22 +62,33 @@ class Gusano:
             if update == True and self.ifExistPoint(self.gusano,pointTemp) == False: 
               print 'Evento------' 
               self.sense.clear()
-              self.gusano = self.updateGusano(self.gusano,pointTemp)
-              self.paintGusano()
-              print '____________________________________________'
-              self.comiendo(pointTemp)
-
-            if self.comidaDisponible() == False:
-                self.comida = self.generaComida()
-        #sense.set_pixel(x, y, 255, 255, 255)
+              #Puede Comer?
+              if pointTemp.x == self.comida.x and pointTemp.y == self.comida.y:
+                self.gusano = self.addGusano(self.gusano,pointTemp)
+                self.limpiaComida()
+                self.sense.clear()
+                self.paintGusano()
+              else:
+                self.gusano = self.updateGusano(self.gusano,pointTemp)
+                print '____________________________________________'
+                #self.comiendo(pointTemp)
+                self.paintGusano()
         if event.type == QUIT:
             self.running = False
             print("BYE")
         time.sleep(0.15)
 
+ def paintComida(self):
+    colorComida = (0,254,0)
+    self.sense.set_pixel(self.comida.x,self.comida.y,colorComida)
+ 
+ def limpiaComida(self):
+     colorComida = (0,0,0)
+     self.sense.set_pixel(self.comida.x,self.comida.y,colorComida)
+     self.comida=Point(-1,-1)
 
  def paintGusano(self):
-    print 'Imprimiendo gusano'
+    print 'Imprimiendo gusano %d' %len(self.gusano)
     #max = len(self.gusano)-1
     for i in range(len(self.gusano)):
         color=self.white
@@ -112,28 +128,40 @@ class Gusano:
 
  def addGusano(self,gusano,bloque):
     print 'Gusano Comiendo'
-    count  = len(gusano)-1
+    print bloque
+    print bloque.x
+    print bloque.y
+    print 'Inicia Comida'
+    count  = 0
     lstNuevoGusanoNew = range(len(gusano)+1)
-    #Recorre el gusano antiguo y lo pone en el nuevo pero descartando
-    #la ultima posicion
-    while count > 0 :
-        lstNuevoGusanoNew[count] = gusano[count-1]
-        count = count - 1
-    lstNuevoGusanoNew[0] = bloque
-
+    max = len(gusano)
+    i = 0
+    while i <= max:
+        if i == 0:
+          lstNuevoGusanoNew[i]=bloque
+        else:
+          lstNuevoGusanoNew[i]=gusano[count]
+          count=count+1
+        i=i+1
+    
     return lstNuevoGusanoNew
 
  def comiendo(self,bloque):
      if bloque.x == self.comida.x and bloque.y == self.comida.y:
         self.gusano = self.addGusano(self.gusano,bloque)
+        self.limpiaComida()
+        self.sense.clear()
+        self.paintGusano()
 
 
  
  def comidaDisponible(self):
-     if self.comida.x != -1 and self.comida.y !=-1:
-        return True
+     result=False
+     if self.comida.x == -1 and self.comida.y == -1:
+         result = False
      else:
-        return False
+         result=True
+     return result
 
 
  def generaComida(self):
