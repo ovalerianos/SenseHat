@@ -1,3 +1,4 @@
+from sense_hat import SenseHat
 from Game import *
 from Hero import *
 
@@ -24,9 +25,21 @@ e,r,e,r,r,e,e,e,
 r,e,e,e,r,e,e,e
 ]
 
+imageHero2 = [
+e,e,e,e,e,e,y,y,
+e,e,e,e,e,y,y,y,
+e,e,e,e,y,y,y,e,
+r,r,e,y,y,y,e,e,
+e,r,y,y,y,e,e,e,
+e,e,r,y,e,e,e,e,
+e,r,e,r,r,e,e,e,
+r,e,e,e,r,e,e,e
+]
+
+sense=SenseHat()
 
 hero1 = Hero("Pikcachu",100,imageHero1)
-hero2 = Hero("Charizard",100,imageHero1)
+hero2 = Hero("Charizard",100,imageHero2)
 
 g = Game()
-g.fight(hero1,hero2)
+g.fight(hero1,hero2,sense)
